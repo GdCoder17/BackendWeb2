@@ -20,11 +20,11 @@ export default function StudentForm({
             id="student-id"
             type="number"
             value={formData.id}
-            onChange={(e) => onChange('id', e.target.value)}
+            onChange={(e) => onChange("id", e.target.value)}
             disabled={isEditing || isSubmitting}
             required
             min="1"
-            placeholder="Ex. 101"
+            placeholder="Ex. 1"
           />
         </div>
         <div className="field">
@@ -33,15 +33,19 @@ export default function StudentForm({
             id="student-name"
             type="text"
             value={formData.name}
-            onChange={(e) => onChange('name', e.target.value)}
+            onChange={(e) => onChange("name", e.target.value)}
             disabled={isSubmitting}
             required
-            placeholder="Ex. Marie Dupont"
+            placeholder="Entrez le nom de l'étudiant"
           />
         </div>
         <div className="actions">
-          <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-            {isEditing ? 'Enregistrer' : 'Ajouter'}
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isEditing ? "Enregistrer" : "Ajouter"}
           </button>
           {isEditing && (
             <button
