@@ -5,18 +5,28 @@ import {
   updateStudent,
   deleteStudent,
 } from './api/students';
+import {
+  clearToken,
+  getToken,
+  loginStudent,
+  registerStudent,
+  setToken,
+} from './api/auth';
 import StudentForm from './components/StudentForm';
 import StudentList from './components/StudentList';
+import AuthForm from './components/AuthForm';
 import './App.css';
 
 const emptyForm = { id: '', name: '' };
 
 export default function App() {
+  const [token, setTokenState] = useState(() => getToken());
   const [students, setStudents] = useState([]);
   const [formData, setFormData] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [authSubmitting, setAuthSubmitting] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
@@ -42,6 +52,9 @@ export default function App() {
       setStudents(data);
       setError(null);
     } catch (err) {
+      if (String(err.message).includes('reconnecter')) {
+        setTokenState(null);
+      }
       showMessage(
         err.message || 'Impossible de charger les étudiants. Vérifiez que le backend est démarré.',
         true
@@ -52,8 +65,49 @@ export default function App() {
   }, [showMessage]);
 
   useEffect(() => {
-    loadStudents();
-  }, [loadStudents]);
+    if (token) {
+      loadStudents();
+    }
+  }, [token, loadStudents]);
+
+  const handleAuthSuccess = (authToken) => {
+    setToken(authToken);
+    setTokenState(authToken);
+  };
+
+  const handleLogin = async (credentials) => {
+    setAuthSubmitting(true);
+    try {
+      const result = await loginStudent(credentials);
+      handleAuthSuccess(result.token);
+      showMessage('Connexion réussie.');
+    } catch (err) {
+      showMessage(err.message || 'Connexion impossible.', true);
+    } finally {
+      setAuthSubmitting(false);
+    }
+  };
+
+  const handleRegister = async (payload) => {
+    setAuthSubmitting(true);
+    try {
+      const result = await registerStudent(payload);
+      handleAuthSuccess(result.token);
+      showMessage('Compte créé.');
+    } catch (err) {
+      showMessage(err.message || 'Inscription impossible.', true);
+    } finally {
+      setAuthSubmitting(false);
+    }
+  };
+
+  const handleLogout = () => {
+    clearToken();
+    setTokenState(null);
+    setStudents([]);
+    setFormData(emptyForm);
+    setEditingId(null);
+  };
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -114,39 +168,60 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>Gestion des étudiants</h1>
-        <p>Ajoutez, modifiez et supprimez des étudiants via l'API backend.</p>
+      <header className="header header-row">
+        <div>
+          <h1>Gestion des étudiants</h1>
+          <p>
+            {token
+              ? 'Ajoutez, modifiez et supprimez des étudiants via l\'API backend.'
+              : 'Connectez-vous pour accéder à la liste des étudiants.'}
+          </p>
+        </div>
+        {token && (
+          <button type="button" className="btn btn-secondary" onClick={handleLogout}>
+            Déconnexion
+          </button>
+        )}
       </header>
 
       {message && <div className="message message-success">{message}</div>}
       {error && <div className="message message-error">{error}</div>}
 
-      <section className="card">
-        <h2>{editingId !== null ? 'Modifier un étudiant' : 'Nouvel étudiant'}</h2>
-        <StudentForm
-          formData={formData}
-          onChange={handleChange}
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          isEditing={editingId !== null}
-          isSubmitting={submitting}
+      {!token ? (
+        <AuthForm
+          onLogin={handleLogin}
+          onRegister={handleRegister}
+          isSubmitting={authSubmitting}
         />
-      </section>
+      ) : (
+        <>
+          <section className="card">
+            <h2>{editingId !== null ? 'Modifier un étudiant' : 'Nouvel étudiant'}</h2>
+            <StudentForm
+              formData={formData}
+              onChange={handleChange}
+              onSubmit={handleSubmit}
+              onCancel={handleCancel}
+              isEditing={editingId !== null}
+              isSubmitting={submitting}
+            />
+          </section>
 
-      <section className="card">
-        <h2>Liste ({students.length})</h2>
-        {loading ? (
-          <div className="loading">Chargement…</div>
-        ) : (
-          <StudentList
-            students={students}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            deletingId={deletingId}
-          />
-        )}
-      </section>
+          <section className="card">
+            <h2>Liste ({students.length})</h2>
+            {loading ? (
+              <div className="loading">Chargement…</div>
+            ) : (
+              <StudentList
+                students={students}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                deletingId={deletingId}
+              />
+            )}
+          </section>
+        </>
+      )}
     </div>
   );
 }
