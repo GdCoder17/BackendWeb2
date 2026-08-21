@@ -1,5 +1,5 @@
 import connexion from "../config/database.ts";
-import { Student } from "../models/Student.ts";
+import { Student } from "../models/student.ts";
 
 
 

@@ -5,7 +5,7 @@ import {
   getAllStudents,
   updateStudentController,
   deleteStudentController
-} from "../controllers/StudentController.ts";
+} from "../controllers/studentController.ts";
 
 
 const router = Router();

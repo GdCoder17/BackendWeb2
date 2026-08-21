@@ -3,9 +3,9 @@ import {
   getAllStudents,
   updateStudent,
   deleteStudent
-} from "../repositories/StudentRepository.js";
+} from "../repositories/studentRepository.ts";
 
-import { Student } from "../models/Student.js";
+import { Student } from "../models/student.ts";
 
 
 // Ajouter un étudiant
