@@ -5,7 +5,7 @@ import {
   getStudents,
   modifyStudent,
   removeStudent
-} from "../service/StudentServices.ts";
+} from "../service/studentServices.ts";
 
 
 // POST /etudiants
