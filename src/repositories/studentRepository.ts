@@ -21,7 +21,7 @@ export const createStudent = async (student: Student) => {
 export const getAllStudents = async () => {
 
   const selectQuery =
-    'SELECT * FROM "demoTable"';
+    'SELECT id, name, email FROM "demoTable"';
 
   const result = await connexion.query(selectQuery);
 
