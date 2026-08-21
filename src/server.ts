@@ -6,8 +6,8 @@ const app = express();
 
 const port: number = 3000;
 
-app.use(cors());
-app.use(express.json());
+app.use(cors()); //ceci est un middleware qui permet de faire des requêtes cross-domain
+app.use(express.json()); //ceci est un middleware qui permet de faire des requêtes json | il transforme les données en json
 
 app.use("/", StudentRoutes);
 
